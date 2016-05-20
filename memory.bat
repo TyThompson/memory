@@ -1,0 +1,2 @@
+ruby memory.rb
+@pause
