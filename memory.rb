@@ -38,11 +38,15 @@ def showmatched(matched)
   puts
 end
 
-def gameovercheck ? (matched)
-  matched == board
+def gameovercheck?(matched,board)
+  if matched.sort == board.sort
+  	puts "You won!" 
+  	puts
+  	return true
+  end
 end
 
-def quitcheck ? (i)
+def quitcheck?(i)
   if i == "quit"
     print "Ending game because a player quit."
     return true
@@ -56,16 +60,12 @@ boardsize = nil
 board = []
 board2 = []
 matched = []
-cardsymbols = ["!", "ಠ_ಠ", "@", "#", "$", "%", "&", "+", "?", "Æ", "¥", "£",
-               "þ",
-               "¢", "¿", "Ø", "®", "§", "¶", "±", "√", "π", "∞", "⋰", "Ω", "ڲ", "₪",
-               "企",
-               "β", "♡", "♊︎", "♐︎", "♀", "♇", "▷", "☆", "⌘", "⎈", "♢", "♉"]
+#removed the extra symbols because it was causing problems with the board display
+cardsymbols = ["!", "@", "#", "$", "%", "&", "+", "?"] 
 checkcard = "nothing"
 checkcard2 = "nothing"
 
-#
-board setup
+#boardsetup
 print "How many cards would you like to use?    "
 boardsize = gets.chomp.to_i
 
@@ -76,15 +76,15 @@ board2 = board.shuffle
 
 
 # game loop
-until quitcheck ? (checkcard) do
+until quitcheck?(checkcard) || gameovercheck?(matched,board) do
     print "Which card would you like to reveal? (1 - #{boardsize})  "
     checkcard = gets.chomp
-    quitcheck ? checkcard
+    quitcheck? checkcard
     checkcard = checkcard.to_i - 1
     cardpicked(board, checkcard)
     print "Pick card from 2nd set that matches the symbol? (1 - #{boardsize})   "
     checkcard2 = gets.chomp
-    quitcheck ? checkcard2
+    quitcheck? checkcard2
     checkcard2 = checkcard2.to_i - 1
 
     if board[checkcard] == board2[checkcard2]
