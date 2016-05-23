@@ -20,7 +20,7 @@ def fail_match(boardsize, board2, checkcard2)
 end
 
 def showmatched(matched)
-  print matched.join(" ")
+  print "[",matched.join("] ["),"]"
   puts
 end
 
@@ -145,18 +145,3 @@ until quitcheck?(checkcard) || gameovercheck?(winboard1) do
 	compare_cards(boardsize, board, checkcard, board2, checkcard2, winboard1, winboard2, matched)
 
 end
-
-
-
-# board = [x y w z w]
-# board2 =[w w x y z]
-
-# winboard1 = {0=>false, 1=>false, 2=>true, 3=>false, 4=>false}
-# winboard2 = {0=>true, 1=>false, 2=>false, 3=>false, 4=>false}
-
-# 2,0 w,w 
-
-# winboard1[2]=true 
-# winboard2[0]=true 
-
-
