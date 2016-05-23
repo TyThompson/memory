@@ -8,44 +8,31 @@ require "pry"
 # repeat until everything is guessed
 
 def displayboard(board)
-  puts
-  print board
+  puts board
 end
 
 def displaycard(board, checkcard)
   puts board[checkcard]
 end
 
-def cardmatch(board, checkcard)
-  puts
-  print "You picked a match, #{board[checkcard]}"
-  puts
-  puts
-end
-
-def cardpicked(board, checkcard)
-  puts "The card you picked was, #{board[checkcard]}"
-end
-
-def cardpicked2(board2, checkcard2)
-  puts
-  print "The card you picked is #{board2[checkcard2]} and is not a match."
-  puts
+def fail_match(boardsize, board2, checkcard2)
+  puts "The card you picked is #{board2[checkcard2]} and is not a match. Try again."
 end
 
 def showmatched(matched)
-  print matched
+  print matched.join(" ")
   puts
 end
 
-def gameovercheck?(matched,board)
-  if matched.sort == board.sort
+def gameovercheck?(winboard1)
+  if !winboard1.has_value?false
   	puts "You won!" 
   	puts
   	return true
   end
 end
 
+# Used inside pickcard
 def quitcheck?(i)
   if i == "quit"
     print "Ending game because a player quit."
@@ -53,45 +40,123 @@ def quitcheck?(i)
   end
 end
 
+def pick_card1(board, boardsize, winboard1)
+	print "Which card would you like to reveal (#1)? (1 - #{boardsize})  "
+	checkcard = gets.chomp
+	quitcheck? checkcard
+	checkcard = checkcard.to_i - 1
+	if checkcard < 0 || checkcard > boardsize-1
+    	print "Not a valid entry"
+    	puts
+    	pick_card1(board, boardsize, winboard1)
+    end
+    puts "The card you picked was #{board[checkcard]}"
+    if out_of_game_card(checkcard, winboard1)
+    	pick_card1(board, boardsize, winboard1)
+    end
+    return checkcard
+end
 
+def pick_card2(board2, boardsize, winboard2)
+	print "Which card would you like to reveal (#2)? (1 - #{boardsize})  "
+	checkcard2 = gets.chomp
+	quitcheck? checkcard2
+	checkcard2 = checkcard2.to_i - 1
+	if checkcard2 < 0 || checkcard2 > boardsize-1
+    	print "Not a valid entry"
+    	puts
+    	pick_card2(board2, boardsize, winboard2)
+    end
+    puts "The card you picked was #{board2[checkcard2]}"
+    if out_of_game_card(checkcard2, winboard2)
+    	pick_card2(board2, boardsize, winboard2)
+    end
+    return checkcard2
+end
+
+#Used in copmare_cards
+def cardmatch(board, checkcard, checkcard2, winboard1, winboard2)
+  puts "You picked a match, #{board[checkcard]}"
+  winboard1[checkcard]=true
+  winboard2[checkcard2]=true
+  puts
+end
+
+# Used in pick_card
+def out_of_game_card(card, winboard)
+	if winboard[card]
+		puts "That card has already been matched. Pick again."
+		return true
+	end
+end
+
+def compare_cards(boardsize, board, checkcard, board2, checkcard2, winboard1, winboard2, matched)
+	if board[checkcard] == board2[checkcard2]
+	  cardmatch(board, checkcard, checkcard2, winboard1, winboard2)
+
+	  matched << board[checkcard]
+	  showmatched(matched)
+	else
+	  fail_match(boardsize, board2, checkcard2)
+	end
+end
 
 # size of board
-boardsize = nil
 board = []
 board2 = []
 matched = []
 #removed the extra symbols because it was causing problems with the board display
 cardsymbols = ["!", "@", "#", "$", "%", "&", "+", "?"] 
-checkcard = "nothing"
-checkcard2 = "nothing"
+checkcard = 0
+checkcard2 = 0
 
 #boardsetup
-print "How many cards would you like to use?    "
-boardsize = gets.chomp.to_i
-
+def setup
+	print "How many pairs would you like to use?    "
+	boardsize = gets.chomp.to_i
+	until boardsize>=1
+		puts "Please type a number of 1 or more."
+		print "How many pairs would you like to use?    "
+		boardsize = gets.chomp.to_i
+	end
+	return boardsize
+end
+boardsize = setup
+winboard1={}
+winboard2={}
+counter=0
 boardsize.times do
   board << cardsymbols.sample
+  winboard1[counter]=false 
+  winboard2[counter]=false
+  counter+=1
 end
 board2 = board.shuffle
 
-
+# (0...boardsize)
 # game loop
-until quitcheck?(checkcard) || gameovercheck?(matched,board) do
-    print "Which card would you like to reveal? (1 - #{boardsize})  "
-    checkcard = gets.chomp
-    quitcheck? checkcard
-    checkcard = checkcard.to_i - 1
-    cardpicked(board, checkcard)
-    print "Pick card from 2nd set that matches the symbol? (1 - #{boardsize})   "
-    checkcard2 = gets.chomp
-    quitcheck? checkcard2
-    checkcard2 = checkcard2.to_i - 1
+until quitcheck?(checkcard) || gameovercheck?(winboard1) do
+	# 1st card
+	checkcard = pick_card1(board, boardsize, winboard1)
 
-    if board[checkcard] == board2[checkcard2]
-      cardmatch(board, checkcard)
-      matched << board[checkcard]
-      showmatched(matched)
-    else
-      cardpicked2(board2, checkcard2)
-    end
-  end
+    # 2nd card
+    checkcard2 = pick_card2(board2, boardsize, winboard2)
+
+	compare_cards(boardsize, board, checkcard, board2, checkcard2, winboard1, winboard2, matched)
+
+end
+
+
+
+# board = [x y w z w]
+# board2 =[w w x y z]
+
+# winboard1 = {0=>false, 1=>false, 2=>true, 3=>false, 4=>false}
+# winboard2 = {0=>true, 1=>false, 2=>false, 3=>false, 4=>false}
+
+# 2,0 w,w 
+
+# winboard1[2]=true 
+# winboard2[0]=true 
+
+
