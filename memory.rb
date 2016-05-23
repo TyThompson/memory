@@ -1,12 +1,3 @@
-require "pry"
-
-#how many cards to use ?
-#flip a card
-# hide the card
-# guess a card that matches
-#if the card matches stay flipped
-# repeat until everything is guessed
-
 def displayboard(board)
   puts board
 end
@@ -133,7 +124,6 @@ boardsize.times do
 end
 board2 = board.shuffle
 
-# (0...boardsize)
 # game loop
 until quitcheck?(checkcard) || gameovercheck?(winboard1) do
 	# 1st card
